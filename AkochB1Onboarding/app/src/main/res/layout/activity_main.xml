@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.akochb1onboarding.viewmodel.MainActivityViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp">
+
+        <Button
+            android:id="@+id/fetchButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/fetch_button_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="@{viewModel.progressLiveData}"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/fetchButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fetchButton" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blocksRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fetchButton" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
