@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
         // code for paginated stuff (not working)
 //        binding.fetchButton.setOnClickListener {
 //            viewModel.fetchBlocksPaginated()?.observe(this, Observer {

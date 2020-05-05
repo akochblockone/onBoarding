@@ -2,6 +2,7 @@ package com.example.akochb1onboarding.webapi.mapper
 
 import com.example.akochb1onboarding.domain.entity.Block
 import com.google.gson.JsonObject
+import one.block.eosiojava.models.rpcProvider.response.GetBlockResponse
 
 class BlockInfoWebMapper {
 
@@ -16,6 +17,20 @@ class BlockInfoWebMapper {
             fullBlock = input.toString(),
             creationTime = input[TIMESTAMP_JSON_FIELD_NAME].asString,
             blockNum = input[BLOCK_NUM_JSON_FIELD_NAME].asInt
+        )
+    }
+
+    fun transform(block: GetBlockResponse?): Block? {
+        val input = block ?: return null
+        return Block(
+            id = input.blockNum.toString(),
+            producer = input.producer,
+            producerSignature = input.producerSignature,
+            previousBlock = input.previous,
+            transactionNumber = input.transactions?.size ?: 0,
+            fullBlock = input.toString(),
+            creationTime = input.timestamp,
+            blockNum = input.blockNum.toInt()
         )
     }
 

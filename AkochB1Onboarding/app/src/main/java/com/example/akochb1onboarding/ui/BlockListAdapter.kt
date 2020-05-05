@@ -41,7 +41,7 @@ class BlockListAdapter(private var currentList: List<Block> = listOf()) :
 
     override fun onBindViewHolder(holder: BlockListViewHolder, position: Int) {
         val block = currentList[position]
-        holder.bind(block, position)
+        holder.bind(block)
         holder.itemView.setOnClickListener {
             onClickCallback?.invoke(block)
         }
@@ -53,9 +53,9 @@ class BlockListAdapter(private var currentList: List<Block> = listOf()) :
         private val cached = itemView.findViewById<View>(R.id.cachedIndicatorView)
         private val nonCached = itemView.findViewById<View>(R.id.nonCachedIndicatorView)
 
-        fun bind(block: Block, position: Int) {
-            producer.text = block.producer ?: ""
-            blockNum.text = "($position) ${block?.blockNum ?: "N/A"}"
+        fun bind(block: Block) {
+            producer.text = block.producer ?: NOT_AVAILABLE
+            blockNum.text = "${block.blockNum ?: NOT_AVAILABLE}"
             if (block.cached) {
                 cached.visibility = VISIBLE
                 nonCached.visibility = GONE
@@ -64,5 +64,9 @@ class BlockListAdapter(private var currentList: List<Block> = listOf()) :
                 nonCached.visibility = VISIBLE
             }
         }
+    }
+
+    companion object {
+        const val NOT_AVAILABLE = "N/A"
     }
 }

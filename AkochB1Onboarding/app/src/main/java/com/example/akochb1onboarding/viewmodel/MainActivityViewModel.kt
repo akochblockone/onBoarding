@@ -28,7 +28,7 @@ class MainActivityViewModel : ViewModel() {
 
     private var blockBatchFetchSemaphore = false
     private var currPage = 1
-    private var currPageProgress = 0
+    private var currPageProgress = NO_PROGRESS
 
     private var _blocksLiveData: MutableLiveData<List<Block>> = MutableLiveData()
     var blocksLiveData: LiveData<List<Block>> = _blocksLiveData
@@ -42,7 +42,7 @@ class MainActivityViewModel : ViewModel() {
     var chainLiveData: LiveData<String> = _chainLiveData
         private set
 
-    private var _progressLiveData = MutableLiveData<Int>(0)
+    private var _progressLiveData = MutableLiveData<Int>(NO_PROGRESS)
     var progressLiveData: LiveData<Int> = _progressLiveData
         private set
 
@@ -58,7 +58,7 @@ class MainActivityViewModel : ViewModel() {
     fun fetchMoreBlocks() {
         if (blockBatchFetchSemaphore) return
         currPage++
-        currPageProgress = 0
+        currPageProgress = NO_PROGRESS
         _progressLiveData.value = currPageProgress
         if (blockList.isNotEmpty()) {
             blockList.lastOrNull()?.previousBlock?.let {
@@ -76,12 +76,12 @@ class MainActivityViewModel : ViewModel() {
             blockList.add(block)
             _blocksLiveData.value = blockList
             if (block.previousBlock != null && blockList.size < BLOCK_QTY * currPage) {
-                currPageProgress = ((blockList.size / (BLOCK_QTY.toDouble() * currPage)) * 100).toInt()
+                currPageProgress += SINGLE_BLOCK_PROGRESS
                 _progressLiveData.value = currPageProgress
                 fetchBlock(block.previousBlock)
             } else {
-                _progressLiveData.value = 100
-                currPageProgress = 0
+                _progressLiveData.value = FULL_PROGRESS
+                currPageProgress = NO_PROGRESS
                 blockBatchFetchSemaphore = false
             }
             _lastFetchTimeLiveData.value = " ${dateFormatter.format(System.currentTimeMillis())}"
@@ -90,15 +90,15 @@ class MainActivityViewModel : ViewModel() {
 
     fun fetchChainInfo() {
         blockBatchFetchSemaphore = true
-        currPageProgress = 0
-        _progressLiveData.value = 0
+        currPageProgress = NO_PROGRESS
+        _progressLiveData.value = NO_PROGRESS
         blockList.clear()
         _blocksLiveData.value = blockList
         viewModelScope.launch {
             val chainInfo = withContext(Dispatchers.IO) {
                 chainUseCase?.getLastChainInfo()
             }
-            _chainLiveData.value = chainInfo?.toString() ?: "Info not found"
+            _chainLiveData.value = chainInfo?.toString() ?: NO_CHAIN
             chainData = chainInfo
             val headBlockId = chainInfo?.headBlockId ?: return@launch
             withContext(Dispatchers.IO) {
@@ -110,11 +110,15 @@ class MainActivityViewModel : ViewModel() {
     fun fetchBlocksPaginated(): LiveData<PagedList<BlockEntity>>? {
         val dao = DataBaseProvider.getDataBase().blockDao()
         val factory = dao.getPaged()
-        return LivePagedListBuilder(factory, 20).build()
+        return LivePagedListBuilder(factory, BLOCK_QTY).build()
     }
 
     companion object {
+        const val NO_PROGRESS = 0
+        const val FULL_PROGRESS = 100
+        const val NO_CHAIN = "Info not found"
         const val DATE_FORMAT = "dd/MM/yy HH:mm:ss"
         const val BLOCK_QTY = 30
+        const val SINGLE_BLOCK_PROGRESS = ((1 / BLOCK_QTY.toDouble()) * 100).toInt()
     }
 }
