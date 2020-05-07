@@ -17,11 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainActivityViewModel : ViewModel() {
+class MainActivityViewModel(
+    private val getLatestBlocksUseCase: GetLatestBlocksUseCase,
+    private val getChainInfoUseCase: GetChainInfoUseCase
+) : ViewModel() {
 
     private val dateFormatter = SimpleDateFormat(DATE_FORMAT)
-    private var blockUseCase: GetLatestBlocksUseCase? = null
-    private var chainUseCase: GetChainInfoUseCase? = null
+
 
     private val blockList: MutableList<Block> = mutableListOf()
     private var chainData: ChainInfo? = null
@@ -46,15 +48,6 @@ class MainActivityViewModel : ViewModel() {
     var progressLiveData: LiveData<Int> = _progressLiveData
         private set
 
-
-    fun init(
-        getLatestBlocksUseCase: GetLatestBlocksUseCase,
-        chainInfoUseCase: GetChainInfoUseCase
-    ) {
-        this.blockUseCase = getLatestBlocksUseCase
-        this.chainUseCase = chainInfoUseCase
-    }
-
     fun fetchMoreBlocks() {
         if (blockBatchFetchSemaphore) return
         currPage++
@@ -71,7 +64,7 @@ class MainActivityViewModel : ViewModel() {
         blockBatchFetchSemaphore = true
         viewModelScope.launch {
             val block = withContext(Dispatchers.IO) {
-                blockUseCase?.getBlock(blockId)
+                getLatestBlocksUseCase.getBlock(blockId)
             } ?: return@launch
             blockList.add(block)
             _blocksLiveData.value = blockList
@@ -96,7 +89,7 @@ class MainActivityViewModel : ViewModel() {
         _blocksLiveData.value = blockList
         viewModelScope.launch {
             val chainInfo = withContext(Dispatchers.IO) {
-                chainUseCase?.getLastChainInfo()
+                getChainInfoUseCase.getLastChainInfo()
             }
             _chainLiveData.value = chainInfo?.toString() ?: NO_CHAIN
             chainData = chainInfo

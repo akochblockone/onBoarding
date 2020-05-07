@@ -2,18 +2,14 @@ package com.example.akochb1onboarding.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.akochb1onboarding.databinding.ActivityMainBinding
 import com.example.akochb1onboarding.domain.entity.Block
-import com.example.akochb1onboarding.domain.usecase.GetChainInfoUseCaseImpl
-import com.example.akochb1onboarding.domain.usecase.GetLatestBlocksUseCaseImpl
-import com.example.akochb1onboarding.repository.BlockRepositoryImpl
-import com.example.akochb1onboarding.repository.ChainRepositoryImpl
 import com.example.akochb1onboarding.ui.BlockListAdapter
 import com.example.akochb1onboarding.viewmodel.MainActivityViewModel
+import org.koin.android.viewmodel.ext.android.getViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel = getViewModel() // koin "by viewModel()" won't work
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
@@ -41,10 +37,6 @@ class MainActivity : AppCompatActivity() {
 //            })
 //        }
 
-        viewModel.init( // To be injected later
-            GetLatestBlocksUseCaseImpl(BlockRepositoryImpl()),
-            GetChainInfoUseCaseImpl(ChainRepositoryImpl())
-        )
         viewModel.blocksLiveData.observeForever {
             adapter.submitList(it)
         }

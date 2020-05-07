@@ -1,6 +1,8 @@
 package com.example.akochb1onboarding.viewmodel
 
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,11 +17,11 @@ class BlockDetailActivityViewModel : ViewModel() {
         private set
 
     var rawBlockPretty: String = BLANK
-    var rawBlockVisibility = View.GONE
+    var rawBlockVisibility = GONE
 
     var rawBlockChecked = false
         set(value) {
-            rawBlockVisibility = if (value) View.VISIBLE else View.GONE
+            rawBlockVisibility = if (value) VISIBLE else GONE
             field = value
         }
 

@@ -11,10 +11,13 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
 
 class MainActivityViewModelTest {
 
@@ -23,7 +26,7 @@ class MainActivityViewModelTest {
 
     private val getLatestBlocksUseCase = mockk<GetLatestBlocksUseCase>()
     private val chainInfoUseCase = mockk<GetChainInfoUseCase>()
-    private val viewModel = MainActivityViewModel()
+    private val viewModel = MainActivityViewModel(getLatestBlocksUseCase, chainInfoUseCase)
 
     @ExperimentalCoroutinesApi
     @Before
@@ -31,7 +34,12 @@ class MainActivityViewModelTest {
         Dispatchers.setMain(Dispatchers.Unconfined)
         every { getLatestBlocksUseCase.getBlock(HEAD_BLOCK_ID) } returns Block()
         every { chainInfoUseCase.getLastChainInfo() } returns ChainInfo(headBlockId = HEAD_BLOCK_ID)
-        viewModel.init(getLatestBlocksUseCase, chainInfoUseCase)
+    }
+
+    @ExperimentalCoroutinesApi
+    @After
+    fun cleanUp() {
+        Dispatchers.resetMain()
     }
 
     @Test
