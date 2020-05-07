@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 
 object DataBaseProvider {
-    const val DATABASE_FILE_NAME = "b1-database.db"
+    private const val DATABASE_FILE_NAME = "b1-database.db"
     private lateinit var db: LocalDataBase
 
     fun init(context: Context) {
