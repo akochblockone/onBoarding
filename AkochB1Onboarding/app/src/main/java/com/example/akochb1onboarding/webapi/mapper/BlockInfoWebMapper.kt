@@ -9,7 +9,7 @@ class BlockInfoWebMapper {
     fun transform(block: JsonObject?): Block? {
         val input = block ?: return null
         return Block(
-            id = input[BLOCK_NUM_JSON_FIELD_NAME].asString ?: NOT_AVAILABLE,
+            id = input[ID_JSON_FIELD_NAME].asString ?: NOT_AVAILABLE,
             producer = input[PRODUCER_JSON_FIELD_NAME].asString ?: NOT_AVAILABLE,
             producerSignature = input[PRODUCER_SIGNATURE_JSON_FIELD_NAME].asString ?: NOT_AVAILABLE,
             previousBlock = input[PREVIOUS_BLOCK_JSON_FIELD_NAME].asString,
@@ -36,6 +36,7 @@ class BlockInfoWebMapper {
 
     companion object {
         const val NOT_AVAILABLE = "N/A"
+        const val ID_JSON_FIELD_NAME = "id"
         const val BLOCK_NUM_JSON_FIELD_NAME = "block_num"
         const val PRODUCER_JSON_FIELD_NAME = "producer"
         const val PRODUCER_SIGNATURE_JSON_FIELD_NAME = "producer_signature"

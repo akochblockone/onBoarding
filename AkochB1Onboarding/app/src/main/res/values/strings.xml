@@ -10,4 +10,7 @@
 
     <string name="block_detail_show_more">Show Raw Block</string>
     <string name="block_detail_show_less">Hide Raw Block</string>
+
+    <string name="local_cache_hit">Local cache hit</string>
+    <string name="local_cache_miss">Local cache miss</string>
 </resources>
