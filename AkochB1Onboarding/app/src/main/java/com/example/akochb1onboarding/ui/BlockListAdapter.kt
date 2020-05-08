@@ -6,27 +6,18 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.akochb1onboarding.R
 import com.example.akochb1onboarding.domain.entity.Block
 
-class BlockListAdapter(private var currentList: List<Block> = listOf()) :
-    RecyclerView.Adapter<BlockListAdapter.BlockListViewHolder>() {
+class BlockListAdapter :
+    ListAdapter<Block, BlockListAdapter.BlockListViewHolder>(Block.DIFF_CALLBACK) {
 
     var onClickCallback: ((block: Block) -> Unit)? = null
 
     fun clearListener() {
         onClickCallback = null
-    }
-
-    fun submitList(list: List<Block>) {
-        val currentLastIndex = currentList.lastIndex
-        currentList = list
-        if (list.isEmpty()) {
-            notifyDataSetChanged()
-        } else {
-            notifyItemRangeChanged(currentLastIndex, list.lastIndex)
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BlockListViewHolder {
@@ -35,12 +26,8 @@ class BlockListAdapter(private var currentList: List<Block> = listOf()) :
         return BlockListViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return currentList.size
-    }
-
     override fun onBindViewHolder(holder: BlockListViewHolder, position: Int) {
-        val block = currentList[position]
+        val block = getItem(position)
         holder.bind(block)
         holder.itemView.setOnClickListener {
             onClickCallback?.invoke(block)
