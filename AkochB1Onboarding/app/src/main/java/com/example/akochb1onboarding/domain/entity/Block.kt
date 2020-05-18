@@ -2,6 +2,8 @@ package com.example.akochb1onboarding.domain.entity
 
 import android.os.Parcelable
 import androidx.recyclerview.widget.DiffUtil
+import com.example.akochb1onboarding.webapi.BlockGson
+import com.google.gson.GsonBuilder
 import kotlinx.android.parcel.Parcelize
 import org.json.JSONObject
 
@@ -18,7 +20,10 @@ data class Block(
     var cached: Boolean = false
 ) : Parcelable {
     fun getPrettyRawBlock(): String = JSONObject(fullBlock ?: "").toString(2)
-
+    fun getAsBlockGson(): BlockGson {
+        val builder = GsonBuilder().create()
+        return builder.fromJson(fullBlock, BlockGson::class.java)
+    }
     companion object {
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Block>() {
             override fun areItemsTheSame(old: Block, new: Block): Boolean {

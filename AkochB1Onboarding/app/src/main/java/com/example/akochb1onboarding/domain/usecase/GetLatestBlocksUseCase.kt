@@ -3,15 +3,16 @@ package com.example.akochb1onboarding.domain.usecase
 import androidx.paging.DataSource
 import com.example.akochb1onboarding.db.entity.BlockEntity
 import com.example.akochb1onboarding.domain.entity.Block
+import com.example.akochb1onboarding.domain.entity.BlockResponse
 import com.example.akochb1onboarding.domain.repository.BlockRepository
 
 interface GetLatestBlocksUseCase {
-    fun getBlock(id: String): Block?
+    fun getBlock(id: String): BlockResponse
     fun getBlocksPaginated(): DataSource.Factory<Int, BlockEntity>
 }
 
 class GetLatestBlocksUseCaseImpl(private val repository: BlockRepository) : GetLatestBlocksUseCase {
-    override fun getBlock(id: String): Block? {
+    override fun getBlock(id: String): BlockResponse {
         return repository.getBlock(id)
     }
 

@@ -26,7 +26,7 @@ class MainActivityViewModelTest {
 
     private val getLatestBlocksUseCase = mockk<GetLatestBlocksUseCase>()
     private val chainInfoUseCase = mockk<GetChainInfoUseCase>()
-    private val viewModel = MainActivityViewModel(getLatestBlocksUseCase, chainInfoUseCase)
+    private val viewModel = BlocksInfoSharedViewModel(getLatestBlocksUseCase, chainInfoUseCase)
 
     @ExperimentalCoroutinesApi
     @Before

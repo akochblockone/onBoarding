@@ -1,11 +1,13 @@
 package com.example.akochb1onboarding.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.akochb1onboarding.domain.entity.Block
 import com.example.akochb1onboarding.domain.entity.ChainInfo
+import com.example.akochb1onboarding.domain.entity.ErrorBlockResponse
 import com.example.akochb1onboarding.domain.usecase.GetChainInfoUseCase
 import com.example.akochb1onboarding.domain.usecase.GetLatestBlocksUseCase
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +27,13 @@ class BlocksInfoSharedViewModel(
     private var currPageProgress = NO_PROGRESS
 
     private var _blocksLiveData: MutableLiveData<List<Block>> = MutableLiveData()
-    var blocksLiveData: LiveData<List<Block>> = _blocksLiveData
-        private set
+    val blocksLiveData: LiveData<List<Block>> = _blocksLiveData
 
     private var _progressLiveData = MutableLiveData(NO_PROGRESS)
-    var progressLiveData: LiveData<Int> = _progressLiveData
-        private set
+    val progressLiveData: LiveData<Int> = _progressLiveData
+
+    private var _errorLiveData: MutableLiveData<String> = MutableLiveData()
+    val errorLiveData: LiveData<String> = _errorLiveData
 
     fun fetchMoreBlocks() {
         if (blockBatchFetchSemaphore) return
@@ -47,15 +50,28 @@ class BlocksInfoSharedViewModel(
     private fun fetchBlock(blockId: String) {
         blockBatchFetchSemaphore = true
         viewModelScope.launch {
-            val block = withContext(Dispatchers.IO) {
+            val blockResponse = withContext(Dispatchers.IO) {
                 getLatestBlocksUseCase.getBlock(blockId)
-            } ?: return@launch
+            }
+            if (blockResponse is ErrorBlockResponse) {
+                _errorLiveData.value = blockResponse.error
+                return@launch
+            }
+            val block = blockResponse.block ?: return@launch
+            try {
+                val blockGson = block.getAsBlockGson()
+            } catch (e: Exception) {
+                print(block.getPrettyRawBlock())
+                e.printStackTrace()
+                return@launch
+            }
+
             if (!blockList.contains(block)) {
                 blockList.add(block)
                 blockList.sortByDescending { it.blockNum }
             }
             _blocksLiveData.value = blockList
-            if (block.previousBlock != null && blockList.size < BLOCK_QTY * currPage) {
+            if (block.previousBlock != null) { //&& blockList.size < BLOCK_QTY * currPage) {
                 currPageProgress += SINGLE_BLOCK_PROGRESS
                 _progressLiveData.value = currPageProgress
                 fetchBlock(block.previousBlock)
@@ -78,7 +94,11 @@ class BlocksInfoSharedViewModel(
                 getChainInfoUseCase.getLastChainInfo()
             }
             chainData = chainInfo
-            val headBlockId = chainInfo?.headBlockId ?: return@launch
+            if (chainInfo == null) {
+                _errorLiveData.value = "Error getting the chain info"
+                return@launch
+            }
+            val headBlockId = chainInfo.headBlockId ?: return@launch
             withContext(Dispatchers.IO) {
                 fetchBlock(headBlockId)
             }

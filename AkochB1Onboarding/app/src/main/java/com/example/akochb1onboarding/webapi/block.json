@@ -6,7 +6,15 @@
   "transaction_mroot": "b5efb7b0d4360b1322b0b7bdcd0738751d46dc2307ccbd03b240cfdc994e7149",
   "action_mroot": "08225cff24c50e1946640c3f7133defa8958fd466aa84af776edf6e4393aa65c",
   "schedule_version": 1696,
-  "new_producers": null,
+  "new_producers": {
+    "version": 0,
+    "producers": [
+      {
+        "producer_name": "string",
+        "block_signing_key": "string"
+      }
+    ]
+  },
   "producer_signature": "SIG_K1_K8CFBn2h2AFViefVBL1GbTEH2gToUtmTdKoi4r1eg5gsMARNZJLCVnFPQhdEMqz33W1FajAPViAoxg2JGR5deq5FgUFqRR",
   "transactions": [
     {

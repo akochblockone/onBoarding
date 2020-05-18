@@ -5,6 +5,9 @@ import androidx.paging.DataSource
 import com.example.akochb1onboarding.db.dao.BlockDao
 import com.example.akochb1onboarding.db.entity.BlockEntity
 import com.example.akochb1onboarding.domain.entity.Block
+import com.example.akochb1onboarding.domain.entity.BlockResponse
+import com.example.akochb1onboarding.domain.entity.ErrorBlockResponse
+import com.example.akochb1onboarding.domain.entity.SuccessBlockResponse
 import com.example.akochb1onboarding.domain.repository.BlockRepository
 import com.example.akochb1onboarding.webapi.EosApi
 import com.example.akochb1onboarding.webapi.mapper.BlockInfoWebMapper
@@ -17,10 +20,11 @@ class BlockRepositoryImpl(
     private val blockInfoWebMapper: BlockInfoWebMapper
 ) : BlockRepository {
 
-    override fun getBlock(blockId: String): Block? {
+    override fun getBlock(blockId: String): BlockResponse {
+        Log.e("blockrepo", "records: ${blockDao.count()}")
         val blockEntity = blockDao.getBlock(blockId)
         if (blockEntity != null) {
-            return blockEntity.toBlock().apply { cached = true }
+            return SuccessBlockResponse(blockEntity.toBlock().apply { cached = true })
         }
         try {
             val requestBody = JsonObject()
@@ -32,15 +36,16 @@ class BlockRepositoryImpl(
                 val block = blockInfoWebMapper.transform(response.body())
                 block?.let {
                     blockDao.insert(BlockEntity(it))
+                    return SuccessBlockResponse(block)
                 }
-                return block
+                return ErrorBlockResponse("null block")
             } else {
                 Log.e("blockRepo", response.errorBody()?.string() ?: "undefined")
+                return ErrorBlockResponse("Response error: ${response.code()}")
             }
-            return null
         } catch (e: Exception) {
             Log.e("blockRepo", "e", e)
-            return null
+            return ErrorBlockResponse("Network error: ${e.message}")
         }
     }
 

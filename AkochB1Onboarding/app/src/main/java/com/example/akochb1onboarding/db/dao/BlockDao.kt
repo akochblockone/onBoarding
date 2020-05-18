@@ -21,4 +21,7 @@ interface BlockDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(blockEntity: BlockEntity)
+
+    @Query(value = "SELECT COUNT(1) from block_table")
+    fun count(): Int
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
@@ -41,6 +42,13 @@ class BlockListFragment : Fragment(R.layout.fragment_block_list) {
         initBlockListAdapter(blocksRecyclerView)
         initClickListener(fetchButton)
         initProgressBar(progressBar)
+        initErrorListener()
+    }
+
+    private fun initErrorListener() {
+        viewModel?.errorLiveData?.observe(viewLifecycleOwner, Observer{
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        })
     }
 
     override fun onPause() {
