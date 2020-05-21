@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'com.apollographql.apollo'
 
 android {
 
@@ -13,6 +14,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    apollo {
+        generateKotlinModels.set(true) // or false for Java models
     }
 
     compileSdkVersion 29
@@ -81,19 +86,22 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
     implementation 'com.squareup.retrofit2:retrofit:2.8.1'
     implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'one.block:eosiojava:0.1.2'
     implementation 'one.block:eosiojavasoftkeysignatureprovider:0.1.1'
     implementation 'one.block:eosiojavaandroidabieosserializationprovider:0.1.0'
     implementation 'one.block:eosiojavarpcprovider:0.1.1'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation "com.apollographql.apollo:apollo-runtime:2.0.3"
+    compileOnly("org.jetbrains:annotations:17.0")
 
+    testCompileOnly("org.jetbrains:annotations:17.0")
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     testImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4'
     testImplementation "io.mockk:mockk:1.10.0"
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.koin:koin-test:2.0.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
