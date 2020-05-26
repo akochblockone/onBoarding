@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">AkochB1Onboarding</string>
+    <string name="last_block_id">Last block Id:</string>
+    <string name="fetch_button_text">Fetch Blocks</string>
+
+    <string name="block_producer_label">Producer:</string>
+    <string name="block_number_label">Block Number:</string>
+    <string name="block_producer_signature_label">Signature:</string>
+    <string name="block_transaction_count_label">Transactions:</string>
+
+    <string name="block_detail_show_more">Show Raw Block</string>
+    <string name="block_detail_show_less">Hide Raw Block</string>
+
+    <string name="local_cache_hit">Local cache hit</string>
+    <string name="local_cache_miss">Local cache miss</string>
+</resources>

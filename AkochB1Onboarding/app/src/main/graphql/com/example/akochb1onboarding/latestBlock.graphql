@@ -1,0 +1,18 @@
+query LatestBlock {
+    latestBlock {
+        id
+        producer
+        producer_signature
+        previous
+        transactions {
+            trx {
+                transaction {
+                    ref_block_num
+                }
+            }
+        }
+        timestamp
+        block_num
+        full_block
+    }
+}
