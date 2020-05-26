@@ -1,5 +1,7 @@
 package com.example.akochb1onboarding.di
 
+import com.example.akochb1onboarding.datasource.GraphQlDataSource
+import com.example.akochb1onboarding.datasource.RestDataSource
 import com.example.akochb1onboarding.db.DataBaseProvider
 import com.example.akochb1onboarding.domain.repository.BlockRepository
 import com.example.akochb1onboarding.domain.repository.ChainRepository
@@ -21,9 +23,12 @@ val appModule = module {
     viewModel { BlocksInfoSharedViewModel(get(), get()) }
     single<GetLatestBlocksUseCase> { GetLatestBlocksUseCaseImpl(get()) }
     single<GetChainInfoUseCase> { GetChainInfoUseCaseImpl(get()) }
-    single<BlockRepository> { BlockRepositoryImpl(get(), get(), get()) }
+    single<BlockRepository> { BlockRepositoryImpl(GraphQlDataSource(get()), get()) }
+//    single<BlockRepository> { BlockRepositoryImpl(RestDataSource(get()), get()) } // use this one for rest endpoint
     single<ChainRepository> { ChainRepositoryImpl(get(), get()) }
     single<EosApi> { WebApiProvider.eosApi }
+    single { RestDataSource(get())}
+    single { GraphQlDataSource(get()) }
     single { DataBaseProvider.getDataBase().blockDao() }
     factory { ChainInfoWebMapper() }
     factory { BlockInfoWebMapper() }

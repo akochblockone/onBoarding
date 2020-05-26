@@ -11,13 +11,13 @@ class ChainRepositoryImpl(
     private val eosApi: EosApi,
     private val chainInfoWebMapper: ChainInfoWebMapper
 ) : ChainRepository {
-    override fun getHeadChainInfo(): ChainInfo? {
+    override suspend fun getHeadChainInfo(): ChainInfo? {
         try {
-            val response = eosApi.getChainInfo().execute()
+            val response = eosApi.getChainInfo()
             if (response.isSuccessful) {
                 return chainInfoWebMapper.transform(response.body())
             } else {
-                Log.e("chainRepo", response.errorBody()?.string() ?: "undefined")
+                Log.e("chainRepo", response.errorBody()?.toString() ?: "undefined")
             }
             return null
         } catch (e: Exception) {

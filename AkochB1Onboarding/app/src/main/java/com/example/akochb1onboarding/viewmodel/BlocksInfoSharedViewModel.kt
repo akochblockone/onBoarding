@@ -1,21 +1,14 @@
 package com.example.akochb1onboarding.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apollographql.apollo.ApolloCall
-import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloException
-import com.example.akochb1onboarding.BlockByIdQuery
 import com.example.akochb1onboarding.domain.entity.Block
 import com.example.akochb1onboarding.domain.entity.ChainInfo
 import com.example.akochb1onboarding.domain.entity.ErrorBlockResponse
 import com.example.akochb1onboarding.domain.usecase.GetChainInfoUseCase
 import com.example.akochb1onboarding.domain.usecase.GetLatestBlocksUseCase
-import com.example.akochb1onboarding.webapi.WebApiProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,6 +47,9 @@ class BlocksInfoSharedViewModel(
     }
 
     private fun fetchBlock(blockId: String) {
+        if (blockList.size > 200) { // added this condition until we use the room pagination
+            return
+        }
         blockBatchFetchSemaphore = true
         viewModelScope.launch {
             val blockResponse = withContext(Dispatchers.IO) {
@@ -64,20 +60,13 @@ class BlocksInfoSharedViewModel(
                 return@launch
             }
             val block = blockResponse.block ?: return@launch
-//            try {
-//                val blockGson = block.getAsBlockGson()
-//            } catch (e: Exception) {
-//                print(block.getPrettyRawBlock())
-//                e.printStackTrace()
-//                return@launch
-//            }
 
             if (!blockList.contains(block)) {
                 blockList.add(block)
                 blockList.sortByDescending { it.blockNum }
             }
             _blocksLiveData.value = blockList
-            if (block.previousBlock != null) { //&& blockList.size < BLOCK_QTY * currPage) {
+            if (block.previousBlock != null && blockList.size < BLOCK_QTY * currPage) {
                 currPageProgress += SINGLE_BLOCK_PROGRESS
                 _progressLiveData.value = currPageProgress
                 fetchBlock(block.previousBlock)
@@ -89,47 +78,45 @@ class BlocksInfoSharedViewModel(
         }
     }
 
-    fun fetchChainInfo() {
+//    fun fetchChainInfo() { // No longer needed when using graphql
+//        blockBatchFetchSemaphore = true
+//        currPageProgress = NO_PROGRESS
+//        _progressLiveData.value = NO_PROGRESS
+//        blockList.clear()
+//        _blocksLiveData.value = blockList
+//        viewModelScope.launch {
+//            val chainInfo = withContext(Dispatchers.IO) {
+//                getChainInfoUseCase.getLastChainInfo()
+//            }
+//            chainData = chainInfo
+//            if (chainInfo == null) {
+//                _errorLiveData.value = "Error getting the chain info"
+//                return@launch
+//            }
+//            val headBlockId = chainInfo.headBlockId ?: return@launch
+//            withContext(Dispatchers.IO) {
+//                fetchBlock(headBlockId)
+//            }
+//        }
+//    }
+
+    fun fetchChainInfo() { // to be used with graphql
         blockBatchFetchSemaphore = true
         currPageProgress = NO_PROGRESS
         _progressLiveData.value = NO_PROGRESS
         blockList.clear()
         _blocksLiveData.value = blockList
         viewModelScope.launch {
-            val chainInfo = withContext(Dispatchers.IO) {
-                getChainInfoUseCase.getLastChainInfo()
+            val latestBlock = withContext(Dispatchers.IO) {
+                getLatestBlocksUseCase.getLatestBlock()
             }
-            chainData = chainInfo
-            if (chainInfo == null) {
-                _errorLiveData.value = "Error getting the chain info"
-                return@launch
-            }
-            val headBlockId = chainInfo.headBlockId ?: return@launch
-            withContext(Dispatchers.IO) {
-                fetchBlock(headBlockId)
-            }
-        }
-    }
-
-    fun testGraphQl() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val apolloClient = WebApiProvider.apolloClient
-                val blockByIdQuery = BlockByIdQuery("073c2775aa2fa8ba81207baa5e7b83f800c8cc84fc777dacf817c4e46b512cc3")
-                apolloClient.query(blockByIdQuery).enqueue(object : ApolloCall.Callback<BlockByIdQuery.Data>() {
-                    override fun onFailure(e: ApolloException) {
-                        Log.e("apollo-call", "error", e)
-                    }
-
-                    override fun onResponse(response: Response<BlockByIdQuery.Data>) {
-                        val data = response.data?.blockById
-                        arrayOf(response.data?.blockById)
-                        response.data.toString()
-                        print(response.data.toString())
-                    }
-
-                })
-
+            latestBlock.block?.let {
+                val headBlockId = it.id ?: return@launch
+                withContext(Dispatchers.IO) {
+                    fetchBlock(headBlockId)
+                }
+            } ?: run {
+                _errorLiveData.value = latestBlock.error
             }
         }
     }

@@ -1,55 +1,40 @@
 package com.example.akochb1onboarding.repository
 
-import android.util.Log
 import androidx.paging.DataSource
+import com.example.akochb1onboarding.datasource.WebDataSource
 import com.example.akochb1onboarding.db.dao.BlockDao
 import com.example.akochb1onboarding.db.entity.BlockEntity
-import com.example.akochb1onboarding.domain.entity.Block
 import com.example.akochb1onboarding.domain.entity.BlockResponse
-import com.example.akochb1onboarding.domain.entity.ErrorBlockResponse
 import com.example.akochb1onboarding.domain.entity.SuccessBlockResponse
 import com.example.akochb1onboarding.domain.repository.BlockRepository
-import com.example.akochb1onboarding.webapi.EosApi
-import com.example.akochb1onboarding.webapi.mapper.BlockInfoWebMapper
-import com.google.gson.JsonObject
-import java.lang.Exception
+import kotlin.coroutines.coroutineContext
 
 class BlockRepositoryImpl(
-    private val eosApi: EosApi,
-    private val blockDao: BlockDao,
-    private val blockInfoWebMapper: BlockInfoWebMapper
+    private val webDataSource: WebDataSource,
+    private val blockDao: BlockDao
 ) : BlockRepository {
 
-    override fun getBlock(blockId: String): BlockResponse {
-        Log.e("blockrepo", "records: ${blockDao.count()}")
+    override suspend fun getBlock(blockId: String): BlockResponse {
         val blockEntity = blockDao.getBlock(blockId)
         if (blockEntity != null) {
             return SuccessBlockResponse(blockEntity.toBlock().apply { cached = true })
         }
-        try {
-            val requestBody = JsonObject()
-            requestBody.addProperty(BLOCK_ID_REQUEST_BODY_KEY, blockId)
-            val response = eosApi
-                .getBlockInfo(requestBody)
-                .execute()
-            if (response.isSuccessful) {
-                val block = blockInfoWebMapper.transform(response.body())
-                block?.let {
-                    blockDao.insert(BlockEntity(it))
-                    return SuccessBlockResponse(block)
-                }
-                return ErrorBlockResponse("null block")
-            } else {
-                Log.e("blockRepo", response.errorBody()?.string() ?: "undefined")
-                return ErrorBlockResponse("Response error: ${response.code()}")
-            }
-        } catch (e: Exception) {
-            Log.e("blockRepo", "e", e)
-            return ErrorBlockResponse("Network error: ${e.message}")
+        val response = webDataSource.getBlock(blockId)
+        response.block?.let { // block data is not null only when the request is successful
+            blockDao.insert(BlockEntity(it))
         }
+        return webDataSource.getBlock(blockId)
     }
 
-    override fun getBlocksPaginated(): DataSource.Factory<Int, BlockEntity> {
+    override suspend fun getLatestBlock(): BlockResponse {
+        val response = webDataSource.getLatestBlock()
+        response.block?.let { // block data is not null only when the request is successful
+            blockDao.insert(BlockEntity(it))
+        }
+        return response
+    }
+
+    override suspend fun getBlocksPaginated(): DataSource.Factory<Int, BlockEntity> {
         return blockDao.getPaged()
     }
 

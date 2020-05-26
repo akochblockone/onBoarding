@@ -1,5 +1,7 @@
 package com.example.akochb1onboarding.webapi.mapper
 
+import com.example.akochb1onboarding.BlockByIdQuery
+import com.example.akochb1onboarding.LatestBlockQuery
 import com.example.akochb1onboarding.domain.entity.Block
 import com.google.gson.JsonObject
 import one.block.eosiojava.models.rpcProvider.response.GetBlockResponse
@@ -17,6 +19,32 @@ class BlockInfoWebMapper {
             fullBlock = input.toString(),
             creationTime = input[TIMESTAMP_JSON_FIELD_NAME].asString,
             blockNum = input[BLOCK_NUM_JSON_FIELD_NAME].asInt
+        )
+    }
+
+    fun transform(input: BlockByIdQuery.BlockById): Block { // BlockById is Apollo generated
+        return Block(
+            id = input.id ?: NOT_AVAILABLE,
+            producer = input.producer ?: NOT_AVAILABLE,
+            producerSignature = input.producer_signature ?: NOT_AVAILABLE,
+            previousBlock = input.previous,
+            transactionNumber = input.transactions?.size ?: 0,
+            fullBlock = input.full_block,
+            creationTime = input.timestamp,
+            blockNum = input.block_num ?: 0
+        )
+    }
+
+    fun transform(input: LatestBlockQuery.LatestBlock): Block { // LatestBlock is Apollo generated
+        return Block(
+            id = input.id ?: NOT_AVAILABLE,
+            producer = input.producer ?: NOT_AVAILABLE,
+            producerSignature = input.producer_signature ?: NOT_AVAILABLE,
+            previousBlock = input.previous,
+            transactionNumber = input.transactions?.size ?: 0,
+            fullBlock = input.full_block,
+            creationTime = input.timestamp,
+            blockNum = input.block_num ?: 0
         )
     }
 

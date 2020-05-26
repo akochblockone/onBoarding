@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 const val NET_TIMEOUT_SECONDS = 10L
-const val GRAPHQL_URL = "http://192.168.1.6:4000/graphql"
+const val GRAPHQL_URL = "https://apollo-b1-example.herokuapp.com/graphql"
 
 object WebApiProvider {
     private const val BASE_URL = "https://eos.greymass.com/v1/"

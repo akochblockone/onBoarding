@@ -94,6 +94,7 @@ dependencies {
     implementation 'one.block:eosiojavarpcprovider:0.1.1'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "com.apollographql.apollo:apollo-runtime:2.0.3"
+    implementation 'com.apollographql.apollo:apollo-coroutines-support:2.0.3'
     compileOnly("org.jetbrains:annotations:17.0")
 
     testCompileOnly("org.jetbrains:annotations:17.0")

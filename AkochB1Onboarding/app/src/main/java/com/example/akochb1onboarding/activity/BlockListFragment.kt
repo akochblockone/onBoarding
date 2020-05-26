@@ -63,9 +63,8 @@ class BlockListFragment : Fragment(R.layout.fragment_block_list) {
 
     private fun initClickListener(button: Button) {
         button.setOnClickListener {
-//            button.isEnabled = false
-            //viewModel?.fetchChainInfo()
-            viewModel?.testGraphQl()
+            button.isEnabled = false
+            viewModel?.fetchChainInfo()
         }
     }
 
